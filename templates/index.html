@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ProjAlpha Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-name">ProjAlpha</p>
+        <p class="brand-sub">Monitor · XAU/XAG · Hyperliquid · gold news</p>
+      </div>
+    </div>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/" class="active">Monitor</a>
+      <a href="/perps">Perps</a>
+    </nav>
+    <div class="top-meta">
+      <span id="host-name" class="mono">—</span>
+      <span id="conn-status" class="status-pill connecting">Connecting</span>
+      <span id="clock" class="mono">—</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="markets" aria-label="XAU and XAG spot prices">
+      <div class="section-head markets-head">
+        <div>
+          <h2>Precious metals</h2>
+          <p>Live XAU / XAG spot values (USD / troy oz)</p>
+        </div>
+        <p id="metals-meta" class="mono metals-meta">Fetching…</p>
+      </div>
+      <div class="metals-grid">
+        <article class="metal-card" data-metal="xau">
+          <header>
+            <div>
+              <p class="metal-symbol mono">XAU</p>
+              <h3>Gold</h3>
+            </div>
+            <span id="xau-change" class="chg mono flat">—</span>
+          </header>
+          <p id="xau-price" class="metal-price mono">—</p>
+          <svg id="xau-spark" class="spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <p class="metric-foot mono">Updated <span id="xau-updated">—</span></p>
+        </article>
+        <article class="metal-card" data-metal="xag">
+          <header>
+            <div>
+              <p class="metal-symbol mono">XAG</p>
+              <h3>Silver</h3>
+            </div>
+            <span id="xag-change" class="chg mono flat">—</span>
+          </header>
+          <p id="xag-price" class="metal-price mono">—</p>
+          <svg id="xag-spark" class="spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <p class="metric-foot mono">Updated <span id="xag-updated">—</span></p>
+        </article>
+        <article class="metal-card ratio-card">
+          <header>
+            <div>
+              <p class="metal-symbol mono">RATIO</p>
+              <h3>Gold / Silver</h3>
+            </div>
+          </header>
+          <p id="gs-ratio" class="metal-price mono">—</p>
+          <p class="metric-foot">Ounces of silver per ounce of gold</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="markets crypto-markets" aria-label="Hyperliquid crypto prices">
+      <div class="section-head markets-head">
+        <div>
+          <h2>Crypto (Hyperliquid)</h2>
+          <p>Live mid prices for BTC · ETH · HYPE · SOL</p>
+        </div>
+        <p id="crypto-meta" class="mono metals-meta">Fetching…</p>
+      </div>
+      <div class="metals-grid crypto-grid">
+        <article class="metal-card crypto-card" data-coin="btc">
+          <header>
+            <div>
+              <p class="metal-symbol mono">BTC</p>
+              <h3>Bitcoin</h3>
+            </div>
+            <span id="btc-change" class="chg mono flat">—</span>
+          </header>
+          <p id="btc-price" class="metal-price mono">—</p>
+          <svg id="btc-spark" class="spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <p id="btc-analysis" class="metric-foot mono analysis-line">Range —</p>
+        </article>
+        <article class="metal-card crypto-card" data-coin="eth">
+          <header>
+            <div>
+              <p class="metal-symbol mono">ETH</p>
+              <h3>Ethereum</h3>
+            </div>
+            <span id="eth-change" class="chg mono flat">—</span>
+          </header>
+          <p id="eth-price" class="metal-price mono">—</p>
+          <svg id="eth-spark" class="spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <p id="eth-analysis" class="metric-foot mono analysis-line">Range —</p>
+        </article>
+        <article class="metal-card crypto-card" data-coin="hype">
+          <header>
+            <div>
+              <p class="metal-symbol mono">HYPE</p>
+              <h3>Hyperliquid</h3>
+            </div>
+            <span id="hype-change" class="chg mono flat">—</span>
+          </header>
+          <p id="hype-price" class="metal-price mono">—</p>
+          <svg id="hype-spark" class="spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <p id="hype-analysis" class="metric-foot mono analysis-line">Range —</p>
+        </article>
+        <article class="metal-card crypto-card" data-coin="sol">
+          <header>
+            <div>
+              <p class="metal-symbol mono">SOL</p>
+              <h3>Solana</h3>
+            </div>
+            <span id="sol-change" class="chg mono flat">—</span>
+          </header>
+          <p id="sol-price" class="metal-price mono">—</p>
+          <svg id="sol-spark" class="spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <p id="sol-analysis" class="metric-foot mono analysis-line">Range —</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="news" aria-label="Current gold news">
+      <div class="section-head">
+        <h2>Gold news</h2>
+        <p id="news-meta">Latest headlines around gold &amp; XAU</p>
+      </div>
+      <div id="news-list" class="news-list">
+        <p class="news-empty">Loading headlines…</p>
+      </div>
+    </section>
+
+    <section class="hero-strip" aria-label="Host overview">
+      <div>
+        <h1>System pulse</h1>
+        <p id="host-detail" class="lede">Collecting host metrics…</p>
+      </div>
+      <dl class="hero-stats">
+        <div>
+          <dt>Uptime</dt>
+          <dd id="uptime" class="mono">—</dd>
+        </div>
+        <div>
+          <dt>Processes</dt>
+          <dd id="proc-count" class="mono">—</dd>
+        </div>
+        <div>
+          <dt>CPUs</dt>
+          <dd id="cpu-count" class="mono">—</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="metrics-grid" aria-label="Resource metrics">
+      <article class="metric" data-metric="cpu">
+        <header>
+          <h2>CPU</h2>
+          <span id="cpu-val" class="metric-value mono">—%</span>
+        </header>
+        <div class="bar-track"><div id="cpu-bar" class="bar-fill"></div></div>
+        <svg id="cpu-spark" class="spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <p class="metric-foot mono">Load <span id="load-avg">—</span></p>
+      </article>
+
+      <article class="metric" data-metric="memory">
+        <header>
+          <h2>Memory</h2>
+          <span id="mem-val" class="metric-value mono">—%</span>
+        </header>
+        <div class="bar-track"><div id="mem-bar" class="bar-fill"></div></div>
+        <svg id="mem-spark" class="spark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <p class="metric-foot mono"><span id="mem-detail">—</span></p>
+      </article>
+
+      <article class="metric" data-metric="disk">
+        <header>
+          <h2>Disk</h2>
+          <span id="disk-val" class="metric-value mono">—%</span>
+        </header>
+        <div class="bar-track"><div id="disk-bar" class="bar-fill"></div></div>
+        <div class="disk-visual" aria-hidden="true">
+          <div id="disk-ring" class="disk-ring"></div>
+        </div>
+        <p class="metric-foot mono"><span id="disk-detail">—</span></p>
+      </article>
+
+      <article class="metric" data-metric="network">
+        <header>
+          <h2>Network</h2>
+          <span class="metric-value mono net-pair">
+            <span id="net-recv">↓ —</span>
+            <span id="net-sent">↑ —</span>
+          </span>
+        </header>
+        <svg id="net-spark" class="spark spark-tall" viewBox="0 0 120 48" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <p class="metric-foot">Throughput (Mbps)</p>
+      </article>
+    </section>
+
+    <section class="services" aria-label="Service health">
+      <div class="section-head">
+        <h2>Service health</h2>
+        <p>Synthetic checks derived from host pressure</p>
+      </div>
+      <div id="service-list" class="service-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const socket = io();
+    const $ = (id) => document.getElementById(id);
+
+    function formatUptime(seconds) {
+      const d = Math.floor(seconds / 86400);
+      const h = Math.floor((seconds % 86400) / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      if (d > 0) return `${d}d ${h}h ${m}m`;
+      if (h > 0) return `${h}h ${m}m`;
+      return `${m}m`;
+    }
+
+    function severity(pct) {
+      if (pct >= 90) return "critical";
+      if (pct >= 75) return "warn";
+      return "ok";
+    }
+
+    function sparkline(svg, series, color) {
+      if (!series.length) return;
+      const w = 120, h = 36;
+      const max = Math.max(...series, 1);
+      const min = Math.min(...series, 0);
+      const span = Math.max(max - min, 1);
+      const step = w / Math.max(series.length - 1, 1);
+      const pts = series.map((v, i) => {
+        const x = i * step;
+        const y = h - ((v - min) / span) * (h - 4) - 2;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+      const line = pts.join(" ");
+      const area = `0,${h} ${line} ${w},${h}`;
+      svg.innerHTML = `
+        <polyline class="spark-area" points="${area}" fill="${color}" opacity="0.12"></polyline>
+        <polyline class="spark-line" points="${line}" fill="none" stroke="${color}" stroke-width="1.6"></polyline>
+      `;
+    }
+
+    function dualSpark(svg, sent, recv) {
+      const w = 120, h = 48;
+      const all = [...sent, ...recv];
+      const max = Math.max(...all, 0.1);
+      const path = (series, color) => {
+        const step = w / Math.max(series.length - 1, 1);
+        const pts = series.map((v, i) => {
+          const x = i * step;
+          const y = h - (v / max) * (h - 6) - 3;
+          return `${x.toFixed(1)},${y.toFixed(1)}`;
+        }).join(" ");
+        return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.6"></polyline>`;
+      };
+      svg.innerHTML = path(recv, "var(--teal)") + path(sent, "var(--ink)");
+    }
+
+    function renderServices(services) {
+      const root = $("service-list");
+      root.innerHTML = services.map((s) => `
+        <div class="service-row ${s.status}">
+          <span class="svc-dot" aria-hidden="true"></span>
+          <span class="svc-name">${s.name}</span>
+          <span class="svc-status mono">${s.status}</span>
+          <span class="svc-lat mono">${s.latency_ms} ms</span>
+        </div>
+      `).join("");
+    }
+
+    function fmtMoney(n, digits = 2) {
+      return Number(n).toLocaleString(undefined, {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits,
+      });
+    }
+
+    function fmtChange(change, pct) {
+      const sign = change > 0 ? "+" : "";
+      return `${sign}${fmtMoney(change, Math.abs(change) < 1 ? 3 : 2)} (${sign}${pct}%)`;
+    }
+
+    function chgClass(change) {
+      if (change > 0) return "up";
+      if (change < 0) return "down";
+      return "flat";
+    }
+
+    function renderMetals(metals) {
+      if (!metals) return;
+      if (metals.error && !metals.xau) {
+        $("metals-meta").textContent = `Feed error: ${metals.error}`;
+        return;
+      }
+      const src = metals.source || "live";
+      $("metals-meta").textContent = metals.updated_at
+        ? `${src} · ${new Date(metals.updated_at).toLocaleTimeString()}`
+        : src;
+
+      if (metals.xau) {
+        $("xau-price").textContent = `$${fmtMoney(metals.xau.price)}`;
+        const el = $("xau-change");
+        el.textContent = fmtChange(metals.xau.change, metals.xau.change_pct);
+        el.className = `chg mono ${chgClass(metals.xau.change)}`;
+        $("xau-updated").textContent = metals.xau.updated_at
+          ? new Date(metals.xau.updated_at).toLocaleTimeString()
+          : "—";
+        sparkline($("xau-spark"), metals.xau.history || [], "var(--gold)");
+      }
+      if (metals.xag) {
+        $("xag-price").textContent = `$${fmtMoney(metals.xag.price, 3)}`;
+        const el = $("xag-change");
+        el.textContent = fmtChange(metals.xag.change, metals.xag.change_pct);
+        el.className = `chg mono ${chgClass(metals.xag.change)}`;
+        $("xag-updated").textContent = metals.xag.updated_at
+          ? new Date(metals.xag.updated_at).toLocaleTimeString()
+          : "—";
+        sparkline($("xag-spark"), metals.xag.history || [], "var(--silver)");
+      }
+      $("gs-ratio").textContent = metals.ratio != null ? fmtMoney(metals.ratio, 2) : "—";
+    }
+
+    function renderNews(news) {
+      const root = $("news-list");
+      if (!news || (!news.items?.length && news.error)) {
+        root.innerHTML = `<p class="news-empty">Unable to load news${news?.error ? `: ${news.error}` : ""}</p>`;
+        return;
+      }
+      if (!news.items?.length) {
+        root.innerHTML = `<p class="news-empty">No headlines yet</p>`;
+        return;
+      }
+      $("news-meta").textContent = news.updated_at
+        ? `Refreshed ${new Date(news.updated_at).toLocaleTimeString()}`
+        : "Latest headlines around gold & XAU";
+      root.innerHTML = news.items.map((n) => `
+        <a class="news-item" href="${n.url}" target="_blank" rel="noopener noreferrer">
+          <span class="news-title">${n.title}</span>
+          <span class="news-meta-row mono">
+            <span>${n.source}</span>
+            <span>${n.published ? new Date(n.published).toLocaleString() : ""}</span>
+          </span>
+        </a>
+      `).join("");
+    }
+
+    function renderCrypto(crypto) {
+      if (!crypto) return;
+      const coins = crypto.coins || {};
+      if (crypto.error && !Object.keys(coins).length) {
+        $("crypto-meta").textContent = `Feed error: ${crypto.error}`;
+        return;
+      }
+      const net = crypto.network || "mainnet";
+      const src = crypto.source || "hyperliquid";
+      $("crypto-meta").textContent = crypto.updated_at
+        ? `${src} · ${net} · ${new Date(crypto.updated_at).toLocaleTimeString()}`
+        : `${src} · ${net}`;
+
+      const colors = {
+        btc: "var(--btc)",
+        eth: "var(--eth)",
+        hype: "var(--hype)",
+        sol: "var(--sol)",
+      };
+
+      ["btc", "eth", "hype", "sol"].forEach((key) => {
+        const c = coins[key];
+        if (!c) return;
+        const digits = c.digits ?? 2;
+        $(`${key}-price`).textContent = `$${fmtMoney(c.price, digits)}`;
+        const el = $(`${key}-change`);
+        el.textContent = fmtChange(c.change, c.change_pct);
+        el.className = `chg mono ${chgClass(c.change)}`;
+        sparkline($(`${key}-spark`), c.history || [], colors[key]);
+        const a = c.analysis || {};
+        const pos = a.range_position != null ? Math.round(a.range_position * 100) : "—";
+        $(`${key}-analysis`).textContent =
+          a.window_low != null
+            ? `Window L ${fmtMoney(a.window_low, digits)} · H ${fmtMoney(a.window_high, digits)} · pos ${pos}%`
+            : "Range —";
+      });
+    }
+
+    function applyMetrics(data) {
+      $("host-name").textContent = data.host.hostname;
+      $("host-detail").textContent = `${data.host.os} · ${data.host.arch}`;
+      $("uptime").textContent = formatUptime(data.host.uptime_seconds);
+      $("proc-count").textContent = data.process_count;
+      $("cpu-count").textContent = data.host.cpus;
+      $("clock").textContent = new Date(data.timestamp).toLocaleTimeString();
+
+      const cpu = data.cpu.percent;
+      $("cpu-val").textContent = `${cpu}%`;
+      $("cpu-bar").style.width = `${cpu}%`;
+      $("cpu-bar").dataset.level = severity(cpu);
+      document.querySelector('[data-metric="cpu"]').dataset.level = severity(cpu);
+      $("load-avg").textContent = `${data.cpu.load_1} / ${data.cpu.load_5} / ${data.cpu.load_15}`;
+      sparkline($("cpu-spark"), data.cpu.history, "var(--teal)");
+
+      const mem = data.memory.percent;
+      $("mem-val").textContent = `${mem}%`;
+      $("mem-bar").style.width = `${mem}%`;
+      $("mem-bar").dataset.level = severity(mem);
+      document.querySelector('[data-metric="memory"]').dataset.level = severity(mem);
+      $("mem-detail").textContent = `${data.memory.used_gb} / ${data.memory.total_gb} GB`;
+      sparkline($("mem-spark"), data.memory.history, "var(--slate)");
+
+      const disk = data.disk.percent;
+      $("disk-val").textContent = `${disk}%`;
+      $("disk-bar").style.width = `${disk}%`;
+      $("disk-bar").dataset.level = severity(disk);
+      document.querySelector('[data-metric="disk"]').dataset.level = severity(disk);
+      $("disk-detail").textContent = `${data.disk.used_gb} / ${data.disk.total_gb} GB free ${data.disk.free_gb}`;
+      $("disk-ring").style.setProperty("--pct", disk);
+
+      $("net-recv").textContent = `↓ ${data.network.recv_mbps}`;
+      $("net-sent").textContent = `↑ ${data.network.sent_mbps}`;
+      dualSpark($("net-spark"), data.network.sent_history, data.network.recv_history);
+
+      renderServices(data.services);
+      renderMetals(data.metals);
+      renderCrypto(data.crypto);
+      renderNews(data.news);
+    }
+
+    socket.on("connect", () => {
+      const el = $("conn-status");
+      el.textContent = "Live";
+      el.className = "status-pill live";
+    });
+
+    socket.on("disconnect", () => {
+      const el = $("conn-status");
+      el.textContent = "Offline";
+      el.className = "status-pill offline";
+    });
+
+    socket.on("metrics_update", applyMetrics);
+
+    // Fallback poll if websocket is blocked
+    fetch("/api/metrics").then((r) => r.json()).then(applyMetrics).catch(() => {});
+  </script>
+</body>
+</html>

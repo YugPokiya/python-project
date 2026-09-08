@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ProjAlpha · Perp Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body class="perps-page">
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-name">ProjAlpha</p>
+        <p class="brand-sub">Perp Dashboard · BTC · ETH Greeks</p>
+      </div>
+    </div>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/">Monitor</a>
+      <a href="/perps" class="active">Perps</a>
+    </nav>
+    <div class="top-meta">
+      <span id="conn-status" class="status-pill connecting">Loading</span>
+      <span id="clock" class="mono">—</span>
+    </div>
+  </header>
+
+  <main class="perps-main">
+    <section class="perp-hero" aria-label="Perp overview">
+      <div>
+        <p class="eyebrow mono">LIVE MARKET</p>
+        <h1>Perp Dashboard</h1>
+        <p class="lede">Hyperliquid perpetuals with Deribit ATM delta, gamma, and vega for BTC and ETH.</p>
+      </div>
+      <p id="perps-meta" class="mono metals-meta">Fetching…</p>
+    </section>
+
+    <section class="asset-stack" id="asset-stack" aria-label="BTC and ETH perps">
+      <article class="asset-panel" data-coin="btc">
+        <header class="asset-head">
+          <div>
+            <p class="metal-symbol mono">BTC-PERP</p>
+            <h2>Bitcoin</h2>
+          </div>
+          <div class="asset-price-block">
+            <p id="btc-mark" class="asset-mark mono">—</p>
+            <span id="btc-chg" class="chg mono flat">—</span>
+          </div>
+        </header>
+
+        <div class="perp-stats" aria-label="BTC perpetual stats">
+          <div><span class="stat-label">Oracle</span><span id="btc-oracle" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">Funding</span><span id="btc-funding" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">Funding APR</span><span id="btc-funding-apr" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">Premium</span><span id="btc-premium" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">Open interest</span><span id="btc-oi" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">24h volume</span><span id="btc-vol" class="stat-val mono">—</span></div>
+        </div>
+        <svg id="btc-spark" class="spark spark-tall" viewBox="0 0 240 48" preserveAspectRatio="none" aria-hidden="true"></svg>
+
+        <div class="greeks-block">
+          <div class="section-head tight">
+            <h3>ATM Greeks</h3>
+            <p id="btc-greeks-expiry" class="mono">Nearest expiry</p>
+          </div>
+          <div class="greeks-grid" aria-label="BTC ATM Greeks">
+            <div class="greek-cell">
+              <span class="greek-label">Delta Δ</span>
+              <span id="btc-delta" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Gamma Γ</span>
+              <span id="btc-gamma" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Vega ν</span>
+              <span id="btc-vega" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Mark IV</span>
+              <span id="btc-iv" class="greek-val mono">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="atm-table-wrap">
+          <table class="atm-table" aria-label="BTC ATM call and put">
+            <thead>
+              <tr>
+                <th>Expiry</th>
+                <th>Side</th>
+                <th>Strike</th>
+                <th>Δ</th>
+                <th>Γ</th>
+                <th>ν</th>
+                <th>Θ</th>
+                <th>IV</th>
+              </tr>
+            </thead>
+            <tbody id="btc-atm-body">
+              <tr><td colspan="8">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="market-greeks" aria-label="BTC market Greeks">
+          <div class="section-head tight">
+            <h3>Market Greeks (OI-weighted)</h3>
+            <p id="btc-mkt-expiry" class="mono">Around ATM</p>
+          </div>
+          <div class="greeks-grid market">
+            <div class="greek-cell">
+              <span class="greek-label">Net Δ</span>
+              <span id="btc-mkt-delta" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Γ</span>
+              <span id="btc-mkt-gamma" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">ν</span>
+              <span id="btc-mkt-vega" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Θ</span>
+              <span id="btc-mkt-theta" class="greek-val mono">—</span>
+            </div>
+          </div>
+          <p id="btc-mkt-foot" class="metric-foot mono">—</p>
+        </div>
+      </article>
+
+      <article class="asset-panel" data-coin="eth">
+        <header class="asset-head">
+          <div>
+            <p class="metal-symbol mono">ETH-PERP</p>
+            <h2>Ethereum</h2>
+          </div>
+          <div class="asset-price-block">
+            <p id="eth-mark" class="asset-mark mono">—</p>
+            <span id="eth-chg" class="chg mono flat">—</span>
+          </div>
+        </header>
+
+        <div class="perp-stats" aria-label="ETH perpetual stats">
+          <div><span class="stat-label">Oracle</span><span id="eth-oracle" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">Funding</span><span id="eth-funding" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">Funding APR</span><span id="eth-funding-apr" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">Premium</span><span id="eth-premium" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">Open interest</span><span id="eth-oi" class="stat-val mono">—</span></div>
+          <div><span class="stat-label">24h volume</span><span id="eth-vol" class="stat-val mono">—</span></div>
+        </div>
+        <svg id="eth-spark" class="spark spark-tall" viewBox="0 0 240 48" preserveAspectRatio="none" aria-hidden="true"></svg>
+
+        <div class="greeks-block">
+          <div class="section-head tight">
+            <h3>ATM Greeks</h3>
+            <p id="eth-greeks-expiry" class="mono">Nearest expiry</p>
+          </div>
+          <div class="greeks-grid" aria-label="ETH ATM Greeks">
+            <div class="greek-cell">
+              <span class="greek-label">Delta Δ</span>
+              <span id="eth-delta" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Gamma Γ</span>
+              <span id="eth-gamma" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Vega ν</span>
+              <span id="eth-vega" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Mark IV</span>
+              <span id="eth-iv" class="greek-val mono">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="atm-table-wrap">
+          <table class="atm-table" aria-label="ETH ATM call and put">
+            <thead>
+              <tr>
+                <th>Expiry</th>
+                <th>Side</th>
+                <th>Strike</th>
+                <th>Δ</th>
+                <th>Γ</th>
+                <th>ν</th>
+                <th>Θ</th>
+                <th>IV</th>
+              </tr>
+            </thead>
+            <tbody id="eth-atm-body">
+              <tr><td colspan="8">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="market-greeks" aria-label="ETH market Greeks">
+          <div class="section-head tight">
+            <h3>Market Greeks (OI-weighted)</h3>
+            <p id="eth-mkt-expiry" class="mono">Around ATM</p>
+          </div>
+          <div class="greeks-grid market">
+            <div class="greek-cell">
+              <span class="greek-label">Net Δ</span>
+              <span id="eth-mkt-delta" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Γ</span>
+              <span id="eth-mkt-gamma" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">ν</span>
+              <span id="eth-mkt-vega" class="greek-val mono">—</span>
+            </div>
+            <div class="greek-cell">
+              <span class="greek-label">Θ</span>
+              <span id="eth-mkt-theta" class="greek-val mono">—</span>
+            </div>
+          </div>
+          <p id="eth-mkt-foot" class="metric-foot mono">—</p>
+        </div>
+      </article>
+    </section>
+
+    <p class="source-note mono">Perps: Hyperliquid · Greeks: Deribit ATM / OI-weighted near-ATM chain</p>
+  </main>
+
+  <script>
+    const COINS = ["btc", "eth"];
+    const stroke = { btc: "#c47a12", eth: "#4a6fa5" };
+
+    function $(id) { return document.getElementById(id); }
+
+    function fmtNum(n, digits = 2) {
+      if (n == null || Number.isNaN(n)) return "—";
+      return Number(n).toLocaleString(undefined, {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits,
+      });
+    }
+
+    function fmtCompact(n, digits = 2) {
+      if (n == null || Number.isNaN(n)) return "—";
+      const abs = Math.abs(n);
+      if (abs >= 1e9) return (n / 1e9).toFixed(2) + "B";
+      if (abs >= 1e6) return (n / 1e6).toFixed(2) + "M";
+      if (abs >= 1e3) return (n / 1e3).toFixed(2) + "K";
+      return fmtNum(n, digits);
+    }
+
+    function fmtSigned(n, digits = 4) {
+      if (n == null || Number.isNaN(n)) return "—";
+      const v = Number(n);
+      const s = (v > 0 ? "+" : "") + v.toFixed(digits);
+      return s;
+    }
+
+    function setChg(el, pct) {
+      if (!el) return;
+      if (pct == null || Number.isNaN(pct)) {
+        el.textContent = "—";
+        el.className = "chg mono flat";
+        return;
+      }
+      const cls = pct > 0.0005 ? "up" : pct < -0.0005 ? "down" : "flat";
+      el.className = `chg mono ${cls}`;
+      el.textContent = `${pct >= 0 ? "+" : ""}${pct.toFixed(3)}%`;
+    }
+
+    function sparkline(svg, values, color) {
+      if (!svg || !values || values.length < 2) return;
+      const w = 240, h = 48, pad = 2;
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const span = max - min || 1;
+      const pts = values.map((v, i) => {
+        const x = pad + (i / (values.length - 1)) * (w - pad * 2);
+        const y = h - pad - ((v - min) / span) * (h - pad * 2);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(" ");
+      svg.innerHTML = `<polyline class="spark-line" fill="none" stroke="${color}" stroke-width="2" points="${pts}" />`;
+    }
+
+    function renderAtmRows(coin, atm) {
+      const body = $(`${coin}-atm-body`);
+      if (!body) return;
+      if (!atm || !atm.length) {
+        body.innerHTML = `<tr><td colspan="8">No ATM options</td></tr>`;
+        return;
+      }
+      const rows = [];
+      for (const row of atm) {
+        for (const side of ["call", "put"]) {
+          const o = row[side];
+          rows.push(`<tr>
+            <td class="mono">${row.expiry}</td>
+            <td>${side.toUpperCase()}</td>
+            <td class="mono">${fmtNum(o.strike, 0)}</td>
+            <td class="mono">${fmtSigned(o.delta, 4)}</td>
+            <td class="mono">${fmtNum(o.gamma, 5)}</td>
+            <td class="mono">${fmtNum(o.vega, 3)}</td>
+            <td class="mono">${fmtNum(o.theta, 2)}</td>
+            <td class="mono">${fmtNum(o.mark_iv, 2)}%</td>
+          </tr>`);
+        }
+      }
+      body.innerHTML = rows.join("");
+    }
+
+    function renderAsset(coin, data) {
+      if (!data) return;
+      const p = data.perp || {};
+      const g = data.greeks || {};
+      const m = data.market_greeks || {};
+      const digits = p.digits ?? 2;
+
+      $(`${coin}-mark`).textContent = fmtNum(p.mark, digits);
+      $(`${coin}-oracle`).textContent = fmtNum(p.oracle, digits);
+      $(`${coin}-funding`).textContent = fmtSigned((p.funding_pct ?? 0), 4) + "%";
+      $(`${coin}-funding-apr`).textContent = fmtSigned(p.funding_apr_pct, 2) + "%";
+      $(`${coin}-premium`).textContent = fmtSigned(p.premium_pct, 3) + "%";
+      $(`${coin}-oi`).textContent = fmtCompact(p.open_interest, 2);
+      $(`${coin}-vol`).textContent = "$" + fmtCompact(p.day_volume_usd, 2);
+      setChg($(`${coin}-chg`), p.change_pct);
+      sparkline($(`${coin}-spark`), p.history || [], stroke[coin]);
+
+      $(`${coin}-delta`).textContent = g.delta == null ? "—" : fmtSigned(g.delta, 4);
+      $(`${coin}-gamma`).textContent = g.gamma == null ? "—" : fmtNum(g.gamma, 5);
+      $(`${coin}-vega`).textContent = g.vega == null ? "—" : fmtNum(g.vega, 3);
+      $(`${coin}-iv`).textContent = g.mark_iv == null ? "—" : fmtNum(g.mark_iv, 2) + "%";
+      $(`${coin}-greeks-expiry`).textContent = g.expiry ? `Expiry ${g.expiry}` : "Nearest expiry";
+
+      renderAtmRows(coin, data.atm);
+
+      $(`${coin}-mkt-delta`).textContent = m.net_delta == null ? "—" : fmtSigned(m.net_delta, 2);
+      $(`${coin}-mkt-gamma`).textContent = m.gamma == null ? "—" : fmtNum(m.gamma, 4);
+      $(`${coin}-mkt-vega`).textContent = m.vega == null ? "—" : fmtCompact(m.vega, 2);
+      $(`${coin}-mkt-theta`).textContent = m.theta == null ? "—" : fmtCompact(m.theta, 2);
+      $(`${coin}-mkt-expiry`).textContent = m.expiry ? `Expiry ${m.expiry}` : "Around ATM";
+      $(`${coin}-mkt-foot`).textContent =
+        `OI ${fmtCompact(m.open_interest, 1)} · ${m.instruments ?? 0} instruments near ATM`;
+    }
+
+    function tickClock() {
+      $("clock").textContent = new Date().toLocaleTimeString();
+    }
+
+    async function refresh() {
+      const status = $("conn-status");
+      try {
+        const res = await fetch("/api/perps");
+        const data = await res.json();
+        if (data.error && !data.assets) throw new Error(data.error);
+
+        for (const coin of COINS) {
+          renderAsset(coin, (data.assets || {})[coin]);
+        }
+
+        const when = data.updated_at
+          ? new Date(data.updated_at).toLocaleTimeString()
+          : "—";
+        const net = data.network || "mainnet";
+        $("perps-meta").textContent = data.error
+          ? `Updated ${when} · ${net} · warn: ${data.error}`
+          : `Updated ${when} · HL ${net} · Deribit Greeks`;
+
+        status.textContent = "Live";
+        status.className = "status-pill live";
+      } catch (err) {
+        status.textContent = "Offline";
+        status.className = "status-pill offline";
+        $("perps-meta").textContent = String(err.message || err);
+      }
+    }
+
+    tickClock();
+    setInterval(tickClock, 1000);
+    refresh();
+    setInterval(refresh, 8000);
+  </script>
+</body>
+</html>
