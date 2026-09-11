@@ -22,12 +22,39 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
+from flask import Flask ,Request, jsonify
+# import bcrypt , numpy as np
+from flask_restful import Resource
 import websockets
 from websockets.exceptions import WebSocketException
+from pymongo import MongoClient
 
 MAINNET_WS = "wss://api.hyperliquid.xyz/ws"
 TESTNET_WS = "wss://api.hyperliquid-testnet.xyz/ws"
+
+client = MongoClient("mongo://db:27017")
+db = client.SimilarityDB
+users = db["Users"]
+
+def UsersExist(username):
+    if users.find({"Username":username}).count() == 0:
+        return False
+    else:
+        return True
+    
+class Register(Resource):
+    def post(self):
+        postedData = Request.get_json()
+        uname = postedData["username"]
+        pswd = postedData["password"]
+
+        if UsersExist(uname):
+            ret = {
+                "status" : 301,
+                "message": "Error Here"
+            }
+        return json(ret)
+
 
 # Server disconnects any socket that's been silent for 60s -> ping well before that.
 HEARTBEAT_INTERVAL_S = 20
